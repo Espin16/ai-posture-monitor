@@ -1,0 +1,27 @@
+venv/
+# env/
+# .venv/
+
+__pycache__/
+*.py[cod]
+*.pyc
+*.egg-info/
+.pytest_cache/
+
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+*.hex
+build/
+
+# Session data / personal footage (per your plan — data/ should be excluded)
+data/*
+!data/.gitkeep
+
+# Logs
+*.log
+
+# OS junk
+Thumbs.db
