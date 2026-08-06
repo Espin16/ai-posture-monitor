@@ -8,16 +8,45 @@ const int red[3] = {255, 0, 0};
 const int green[3] = {0, 255, 0};
 const int blue[3] = {0, 0, 255};
 
+
+
 void setup() {
     Serial.begin(9600);
+    Serial.setTimeout(1);
     pinMode(RED_PIN, OUTPUT);
     pinMode(GREEN_PIN, OUTPUT);
     pinMode(BLUE_PIN, OUTPUT);
 }
 
 void loop() {
-    analogWrite(RED_PIN, 255);
-    delay(1000);
-    analogWrite(RED_PIN, 0);
-    delay(1000);
+    while (!Serial.available()) {
+
+    }
+
+    delay(50);
+
+    String state = Serial.readString();
+    Serial.println(state);
+    delay(50);
+    state.trim();
+
+    if (state == "G") {
+        digitalWrite(RED_PIN, LOW);
+        digitalWrite(GREEN_PIN, HIGH);
+        digitalWrite(BLUE_PIN, LOW);
+    } else if (state == "A") {
+        digitalWrite(RED_PIN, HIGH);
+        digitalWrite(GREEN_PIN, LOW);
+        digitalWrite(BLUE_PIN, LOW);
+    } else if (state == "S") {
+        digitalWrite(RED_PIN, LOW);
+        digitalWrite(GREEN_PIN, LOW);
+        digitalWrite(BLUE_PIN, HIGH);
+    } else {
+        digitalWrite(RED_PIN, LOW);
+        digitalWrite(GREEN_PIN, LOW);
+        digitalWrite(BLUE_PIN, LOW);
+    }
+
+
 }
