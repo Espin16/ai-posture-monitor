@@ -4,20 +4,49 @@
 #define GREEN_PIN 10
 #define BLUE_PIN 11
 
-const int red[3] = {255, 0, 0};
-const int green[3] = {0, 255, 0};
-const int blue[3] = {0, 0, 255};
+// const int red[3] = {255, 0, 0};
+// const int green[3] = {0, 255, 0};
+// const int blue[3] = {0, 0, 255};
+
+String state;
+
 
 void setup() {
     Serial.begin(9600);
+    Serial.setTimeout(1);
     pinMode(RED_PIN, OUTPUT);
     pinMode(GREEN_PIN, OUTPUT);
     pinMode(BLUE_PIN, OUTPUT);
 }
 
 void loop() {
-    analogWrite(RED_PIN, 255);
-    delay(1000);
-    analogWrite(RED_PIN, 0);
-    delay(1000);
+    while (!Serial.available()) {
+
+    }
+
+    delay(50);
+
+    state = Serial.readString();
+    Serial.println(state);
+    delay(50);
+    state.trim();
+    state.toLowerCase();
+
+    if (state == "g") {
+        setColor(0, 255, 0);
+    } else if (state == "a") {
+        setColor(255, 0, 0);
+    } else if (state == "s") {
+        setColor(0, 0, 255);
+    } else {
+        setColor(0, 0, 0);
+    }
+
+}
+
+
+void setColor(int r, int g, int b) {
+    digitalWrite(RED_PIN, r);
+    digitalWrite(GREEN_PIN, g);
+    digitalWrite(BLUE_PIN, b);
 }

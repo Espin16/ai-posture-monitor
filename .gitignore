@@ -16,6 +16,10 @@ __pycache__/
 *.hex
 build/
 
+# MediaPipe Model Files
+python/models/*.tflite
+python/models/*.task
+
 # Session data / personal footage (per your plan — data/ should be excluded)
 data/*
 !data/.gitkeep
