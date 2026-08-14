@@ -10,6 +10,12 @@
 
 String state;
 
+void setColor(int r, int g, int b) {
+    digitalWrite(RED_PIN, r);
+    digitalWrite(GREEN_PIN, g);
+    digitalWrite(BLUE_PIN, b);
+}
+
 
 void setup() {
     Serial.begin(9600);
@@ -27,8 +33,6 @@ void loop() {
     delay(50);
 
     state = Serial.readString();
-    Serial.println(state);
-    delay(50);
     state.trim();
     state.toLowerCase();
 
@@ -38,15 +42,10 @@ void loop() {
         setColor(255, 0, 0);
     } else if (state == "s") {
         setColor(0, 0, 255);
-    } else {
+    } else if (state == "off") {
         setColor(0, 0, 0);
     }
 
 }
 
 
-void setColor(int r, int g, int b) {
-    digitalWrite(RED_PIN, r);
-    digitalWrite(GREEN_PIN, g);
-    digitalWrite(BLUE_PIN, b);
-}
