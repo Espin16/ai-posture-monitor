@@ -21,6 +21,15 @@ THRESHOLDS = {
     "head_tilt_deg": 20,
 }
 
+# The landmarks required for each metric to be calculated
+VISIBILITY_REQUIREMENTS = {
+    "frontal_neck_flexion_deg": [PoseLandmark.NOSE, PoseLandmark.LEFT_SHOULDER, PoseLandmark.RIGHT_SHOULDER],
+    "shoulder_alignment_deg": [PoseLandmark.RIGHT_SHOULDER, PoseLandmark.LEFT_SHOULDER],
+    "right_arm_abduction_deg": [PoseLandmark.RIGHT_SHOULDER, PoseLandmark.RIGHT_ELBOW],
+    "left_arm_abduction_deg": [PoseLandmark.LEFT_SHOULDER, PoseLandmark.LEFT_ELBOW],
+    "head_tilt_deg": [PoseLandmark.LEFT_EAR, PoseLandmark.RIGHT_EAR],
+}
+
 MIN_VISIBILITY = 0.7    # Required visibility to take metrics into account
 
 
@@ -33,3 +42,24 @@ class PostureEvaluator:
             calibration_data = json.load(f)
 
         self.baseline_metrics = calibration_data["derived_metrics"]
+
+    def evaluate(self, pose_landmarks) -> dict:
+
+        live_metrics = derive_metrics(pose_landmarks)
+
+        deviations = {}
+        breaches = {}
+
+        for metric, threshold in THRESHOLDS.items():
+
+            if VISIBILITY_REQUIREMENTS.get(metric):
+
+                visible = all(pose_landmarks[landmark].visibility >= MIN_VISIBILITY for landmark in VISIBILITY_REQUIREMENTS.get(metric))
+
+                if not visible:
+                    continue    # Skip this metric in the current frame
+
+            deviation = abs(live_metrics[metric] - self.baseline_metrics[metric])
+            deviations[metric] = deviation
+            breaches[metric] = deviation > threshold
+
