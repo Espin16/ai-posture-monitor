@@ -72,7 +72,7 @@ def derive_metrics(landmarks):
     ear_midpoint = _Point((left_ear.x + right_ear.x) / 2,
                           (left_ear.y + right_ear.y) / 2,)
 
-    return {"frontal_neck_flexion_deg": _angle_from_vertical(nose, shoulder_midpoint),    # Frontal, ie parallel to the plane of view
+    return {"lateral_neck_bend_deg": _angle_from_vertical(nose, shoulder_midpoint),    # Lateral, ie parallel to the plane of view
             "shoulder_alignment_deg": _angle_from_horizontal(right_shoulder, left_shoulder),
             "right_arm_abduction_deg": _angle_from_vertical(right_shoulder, right_elbow),
             "left_arm_abduction_deg": _angle_from_vertical(left_shoulder, left_elbow),

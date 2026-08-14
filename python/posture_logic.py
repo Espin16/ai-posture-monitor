@@ -14,7 +14,7 @@ I will use a simplified version of this in this file for now.
 
 # Deviation of metrics until which a posture is considered good
 THRESHOLDS = {
-    "frontal_neck_flexion_deg": 15,
+    "lateral_neck_bend_deg": 15,
     "shoulder_alignment_deg": 8,
     "right_arm_abduction_deg": 10,
     "left_arm_abduction_deg": 20,
@@ -23,7 +23,7 @@ THRESHOLDS = {
 
 # The landmarks required for each metric to be calculated
 VISIBILITY_REQUIREMENTS = {
-    "frontal_neck_flexion_deg": [PoseLandmark.NOSE, PoseLandmark.LEFT_SHOULDER, PoseLandmark.RIGHT_SHOULDER],
+    "lateral_neck_bend_deg": [PoseLandmark.NOSE, PoseLandmark.LEFT_SHOULDER, PoseLandmark.RIGHT_SHOULDER],
     "shoulder_alignment_deg": [PoseLandmark.RIGHT_SHOULDER, PoseLandmark.LEFT_SHOULDER],
     "right_arm_abduction_deg": [PoseLandmark.RIGHT_SHOULDER, PoseLandmark.RIGHT_ELBOW],
     "left_arm_abduction_deg": [PoseLandmark.LEFT_SHOULDER, PoseLandmark.LEFT_ELBOW],
