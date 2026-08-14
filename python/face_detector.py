@@ -4,8 +4,6 @@ import math
 import numpy as np
 import mediapipe as mp
 from mediapipe.tasks import python
-# from mediapipe.tasks.python.vision import drawing_utils
-# from mediapipe.tasks.python.vision import drawing_styles
 from mediapipe.tasks.python import vision
 from typing import Tuple, Union
 
@@ -13,12 +11,14 @@ MARGIN = 10
 ROW_SIZE = 10
 FONT_SIZE = 1
 FONT_THICKNESS = 1
-TEXT_COLOR = (0, 0, 255) 
+TEXT_COLOR = (0, 0, 255)
+MIN_DETECTION_CONFIDENCE = 0.8
 
-frame_ms = 1000/60  # Approximate frame duration for a 60 FPS stream
+MODEL_PATH = "python/models/blaze_face_short_range.tflite"
+
+
 
 ### VISUALIZATION ###
-
 
 # Converting valid normalized coordinates from the result to pixel coordinates
 def _normalized_to_pixel_coordinates(normalized_x: float, normalized_y: float, image_width: int, image_height: int) -> Union[None, Tuple[int, int]]:
@@ -33,6 +33,7 @@ def _normalized_to_pixel_coordinates(normalized_x: float, normalized_y: float, i
     x_px = min(math.floor(normalized_x * image_width), image_width - 1)
     y_px = min(math.floor(normalized_y * image_height), image_height - 1)
     return x_px, y_px
+
 
 
 def visualize(image: np.ndarray, detection_result: vision.FaceDetectorResult) -> np.ndarray: # type: ignore
@@ -62,69 +63,38 @@ def visualize(image: np.ndarray, detection_result: vision.FaceDetectorResult) ->
         text_location = (MARGIN + bbox.origin_x, MARGIN + bbox.origin_y + ROW_SIZE)
         cv2.putText(annotated_image, result_text, text_location, cv2.FONT_HERSHEY_PLAIN, FONT_SIZE, TEXT_COLOR, FONT_THICKNESS)
 
-        return annotated_image
+    return annotated_image
+
+
+### FACE DETECTION CLASS
+
+class FaceDetectorWrapper:
+
+    def __init__(self, model_path: str = MODEL_PATH, min_detection_confidence: float = MIN_DETECTION_CONFIDENCE):
+
+        base_options = mp.tasks.BaseOptions(model_asset_path = model_path)
+        options = mp.tasks.vision.FaceDetectorOptions(base_options=base_options,
+                                                      running_mode=vision.RunningMode.VIDEO,
+                                                      min_detection_confidence=min_detection_confidence)
+        self.detector = vision.FaceDetector.create_from_options(options)
+
+    def detect(self, frame: np.ndarray, timestamp_ms: int) -> vision.FaceDetectorResult:            # type: ignore
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
+        return self.detector.detect_for_video(mp_image, timestamp_ms)
+
+    def close(self):
+        self.detector.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self):
+        self.close()
 
 
 
-### FACE DETECTION ###
-
-# Initialise objects
-
-BaseOptions = mp.tasks.BaseOptions
-FaceDetector = mp.tasks.vision.FaceDetector
-FaceDetectorOptions = mp.tasks.vision.FaceDetectorOptions
-VisionRunningMode = mp.tasks.vision.RunningMode
-
-options = FaceDetectorOptions(base_options=BaseOptions(model_asset_path='python/models/blaze_face_short_range.tflite'),
-                              running_mode=VisionRunningMode.VIDEO,
-                              min_detection_confidence=0.65)
-
-with FaceDetector.create_from_options(options) as detector:
-
-    def main():
-
-        capture = cv2.VideoCapture(0)
-        timestamp_ms = 0
-        frame_counter = 0
 
 
-        if not capture.isOpened():
-            print("Error: Could not open webcam.")
-            return
-
-        print("Press 'q' to quit the webcam feed.")
-
-        time.sleep(2)
-
-        while True:
-            ret, frame = capture.read()
-            timestamp_ms += frame_ms
-            frame_counter += 1
-
-            if not ret:
-                print("Error: Could not read frame.")
-                break
-
-            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
-            face_detector_result = detector.detect_for_video(mp_image, int(timestamp_ms))
-
-            image_copy = np.copy(mp_image.numpy_view())
-
-            annotated_image = visualize(image_copy, face_detector_result)
-            
 
 
-            if annotated_image is not None:
-                cv2.imshow('Webcam Feed', annotated_image)
-            else:
-                cv2.imshow('Webcam Feed', frame)
-
-
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
-        capture.release()
-        cv2.destroyAllWindows()
-
-    main()
