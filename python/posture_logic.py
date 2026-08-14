@@ -21,6 +21,10 @@ THRESHOLDS = {
     "head_tilt_deg": 20,
 }
 
+# Metrics to be considered
+ACTIVE_METRICS = {k: THRESHOLDS[k] for k in ("lateral_neck_bend_deg", "shoulder_alignment_deg", "head_tilt_deg")}
+
+
 # The landmarks required for each metric to be calculated
 VISIBILITY_REQUIREMENTS = {
     "lateral_neck_bend_deg": [PoseLandmark.NOSE, PoseLandmark.LEFT_SHOULDER, PoseLandmark.RIGHT_SHOULDER],
@@ -30,7 +34,7 @@ VISIBILITY_REQUIREMENTS = {
     "head_tilt_deg": [PoseLandmark.LEFT_EAR, PoseLandmark.RIGHT_EAR],
 }
 
-MIN_VISIBILITY = 0.7    # Required visibility to take metrics into account
+MIN_VISIBILITY = 0.9    # Required visibility to take metrics into account
 
 
 # The main class to evaluate posture quality
@@ -61,7 +65,9 @@ class PostureEvaluator:
 
             deviation = abs(live_metrics[metric] - self.baseline_metrics[metric])
             deviations[metric] = deviation
-            breaches[metric] = deviation > threshold
+
+            if metric in ACTIVE_METRICS:
+                breaches[metric] = deviation > threshold
 
         state = "slouching" if any(breaches.values()) else "good"
 
