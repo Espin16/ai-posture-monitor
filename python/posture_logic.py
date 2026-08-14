@@ -63,3 +63,11 @@ class PostureEvaluator:
             deviations[metric] = deviation
             breaches[metric] = deviation > threshold
 
+        state = "slouching" if any(breaches.values()) else "good"
+
+        return {
+            "state": state,
+            "deviations": deviations,
+            "breaches": breaches,
+        }
+
