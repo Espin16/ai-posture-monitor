@@ -4,8 +4,6 @@ import math
 import numpy as np
 import mediapipe as mp
 from mediapipe.tasks import python
-# from mediapipe.tasks.python.vision import drawing_utils
-# from mediapipe.tasks.python.vision import drawing_styles
 from mediapipe.tasks.python import vision
 from typing import Tuple, Union
 

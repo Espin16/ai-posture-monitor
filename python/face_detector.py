@@ -27,7 +27,7 @@ def _normalized_to_pixel_coordinates(normalized_x: float, normalized_y: float, i
         return (value > 0) and (value < 1)
 
     if not (is_valid_normalized_value(normalized_x) and is_valid_normalized_value(normalized_y)):
-        #TODO: Draw coordinates even if it;s outside of the image bounds
+        #TODO: Draw coordinates even if it's outside of the image bounds, as per guidance from the MediaPipe jupyter notebook sample
         return None
 
     x_px = min(math.floor(normalized_x * image_width), image_width - 1)
@@ -66,28 +66,36 @@ def visualize(image: np.ndarray, detection_result: vision.FaceDetectorResult) ->
     return annotated_image
 
 
+
 ### FACE DETECTION CLASS
 
 class FaceDetectorWrapper:
 
+
     def __init__(self, model_path: str = MODEL_PATH, min_detection_confidence: float = MIN_DETECTION_CONFIDENCE):
 
+        # Habitual setup as seen in Google MediaPipe examples
         base_options = mp.tasks.BaseOptions(model_asset_path = model_path)
         options = mp.tasks.vision.FaceDetectorOptions(base_options=base_options,
                                                       running_mode=vision.RunningMode.VIDEO,
                                                       min_detection_confidence=min_detection_confidence)
         self.detector = vision.FaceDetector.create_from_options(options)
 
+
     def detect(self, frame: np.ndarray, timestamp_ms: int) -> vision.FaceDetectorResult:            # type: ignore
+
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
         return self.detector.detect_for_video(mp_image, timestamp_ms)
 
+
     def close(self):
         self.detector.close()
 
+
     def __enter__(self):
         return self
+
 
     def __exit__(self):
         self.close()
