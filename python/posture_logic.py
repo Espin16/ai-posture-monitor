@@ -1,6 +1,8 @@
 import json
 import time
 
+
+from collections import deque
 from calibration import derive_metrics, CALIBRATION_PATH
 from mediapipe.tasks.python.vision import PoseLandmark
 
@@ -35,10 +37,20 @@ VISIBILITY_REQUIREMENTS = {
 }
 
 MIN_VISIBILITY = 0.9    # Required visibility to take metrics into account
+SMOOTHING_WINDOW = 15
+
+class MetricSmoother:
+
+    def __init__(self):
+        pass
+
+    def update(self):
+        pass
 
 
 # The main class to evaluate posture quality
 class PostureEvaluator:
+
 
     def __init__(self, calibration_path: str = CALIBRATION_PATH):
 
@@ -46,6 +58,7 @@ class PostureEvaluator:
             calibration_data = json.load(f)
 
         self.baseline_metrics = calibration_data["derived_metrics"]
+
 
     def evaluate(self, pose_landmarks) -> dict:
 
